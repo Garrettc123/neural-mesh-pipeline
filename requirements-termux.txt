@@ -1,0 +1,15 @@
+# Neural Mesh Pipeline - Termux Dependencies
+# Install with: pip install -r requirements-termux.txt
+
+# Core dependencies
+langchain>=0.1.0
+langchain-openai>=0.0.5
+openai>=1.0.0
+
+# Utilities
+python-dotenv>=1.0.0
+requests>=2.31.0
+
+# Optional but recommended
+pytest>=7.4.0  # For test framework
+pytest-timeout>=2.2.0  # Test timeout handling
