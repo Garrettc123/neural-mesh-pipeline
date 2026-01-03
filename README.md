@@ -14,6 +14,22 @@
 
 ## Quick Start (5 Minutes)
 
+### Automated Deployment (Recommended)
+
+```bash
+# Clone repository
+git clone https://github.com/Garrettc123/neural-mesh-pipeline.git
+cd neural-mesh-pipeline
+
+# Run deployment script
+./deploy.sh
+
+# Or use Docker
+./deploy-docker.sh
+```
+
+### Manual Setup (Termux)
+
 ```bash
 # 1. Install prerequisites
 pkg update && pkg upgrade -y
@@ -37,8 +53,11 @@ export OPENAI_API_KEY="sk-your-key"
 python pipeline_enhanced.py
 ```
 
+For detailed deployment options (Docker, Cloud, CI/CD), see **[DEPLOYMENT.md](DEPLOYMENT.md)**
+
 ## Documentation
 
+- **[Deployment Guide](DEPLOYMENT.md)** - Complete deployment instructions
 - **[Quick Reference](QUICK_REFERENCE.md)** - Commands and common tasks
 - **[Implementation Guide](IMPLEMENTATION_GUIDE.md)** - Full technical documentation
 - **[Troubleshooting](TROUBLESHOOTING.md)** - Common issues and solutions
