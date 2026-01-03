@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  neural-mesh-pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: neural-mesh-pipeline
+    restart: unless-stopped
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - AI_MODEL=${AI_MODEL:-gpt-4}
+      - AI_TEMPERATURE=${AI_TEMPERATURE:-0.1}
+      - MAX_RETRIES=${MAX_RETRIES:-3}
+      - TEST_TIMEOUT=${TEST_TIMEOUT:-300}
+    volumes:
+      # Persist state and logs
+      - ./data/storage:/app/storage
+      - ./data/logs:/app/logs
+      # Mount source code (for development)
+      - ./src:/app/src
+    networks:
+      - neural-mesh-net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os; exit(0 if os.path.exists('/app/storage/pipeline_state.json') else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+networks:
+  neural-mesh-net:
+    driver: bridge
