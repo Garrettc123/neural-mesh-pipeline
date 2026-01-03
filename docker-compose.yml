@@ -31,7 +31,3 @@ services:
 networks:
   neural-mesh-net:
     driver: bridge
-
-volumes:
-  storage:
-  logs:

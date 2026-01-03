@@ -61,9 +61,9 @@ cp QUICK_REFERENCE.md ~/neural-mesh/ 2>/dev/null || true
 cp TROUBLESHOOTING.md ~/neural-mesh/ 2>/dev/null || true
 
 if [ -f ".env.example" ]; then
-    if [ ! -f "~/neural-mesh/.env" ]; then
-        cp .env.example ~/neural-mesh/.env
-        print_warning ".env file created from template. Please edit ~/neural-mesh/.env with your API keys."
+    if [ ! -f "$HOME/neural-mesh/.env" ]; then
+        cp .env.example "$HOME/neural-mesh/.env"
+        print_warning ".env file created from template. Please edit $HOME/neural-mesh/.env with your API keys."
     fi
 fi
 

@@ -101,14 +101,17 @@ def main():
             
             # Check last run time
             if "last_run" in state:
-                last_run = datetime.fromisoformat(state["last_run"])
-                time_since = datetime.now() - last_run
-                recent = time_since < timedelta(hours=24)
-                check_status(
-                    "Last Run",
-                    recent,
-                    f"{time_since.total_seconds() / 3600:.1f} hours ago"
-                )
+                try:
+                    last_run = datetime.fromisoformat(state["last_run"])
+                    time_since = datetime.now() - last_run
+                    recent = time_since < timedelta(hours=24)
+                    check_status(
+                        "Last Run",
+                        recent,
+                        f"{time_since.total_seconds() / 3600:.1f} hours ago"
+                    )
+                except (ValueError, TypeError) as e:
+                    check_status("Last Run", False, f"Invalid timestamp format: {e}")
             
             # Check metrics
             if "metrics" in state:

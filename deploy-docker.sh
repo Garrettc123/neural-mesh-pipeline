@@ -90,9 +90,12 @@ echo ""
 echo "Waiting for container to be healthy..."
 sleep 5
 
+# Detect which docker-compose command to use
 if docker compose version &> /dev/null; then
+    DOCKER_COMPOSE_CMD="docker compose"
     CONTAINER_STATUS=$(docker compose ps -q neural-mesh-pipeline | xargs docker inspect -f '{{.State.Status}}')
 else
+    DOCKER_COMPOSE_CMD="docker-compose"
     CONTAINER_STATUS=$(docker-compose ps -q neural-mesh-pipeline | xargs docker inspect -f '{{.State.Status}}')
 fi
 
@@ -111,9 +114,9 @@ echo "Container name: neural-mesh-pipeline"
 echo ""
 echo "Useful commands:"
 echo "  View logs:       docker logs -f neural-mesh-pipeline"
-echo "  Stop services:   docker-compose down"
-echo "  Restart:         docker-compose restart"
-echo "  View status:     docker-compose ps"
+echo "  Stop services:   $DOCKER_COMPOSE_CMD down"
+echo "  Restart:         $DOCKER_COMPOSE_CMD restart"
+echo "  View status:     $DOCKER_COMPOSE_CMD ps"
 echo "  Enter container: docker exec -it neural-mesh-pipeline bash"
 echo ""
 echo "Data locations:"
