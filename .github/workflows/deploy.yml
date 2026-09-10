@@ -2,13 +2,9 @@ name: Deploy Neural Mesh Pipeline
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [main, master]
   pull_request:
-    branches:
-      - main
-      - master
+    branches: [main, master]
   workflow_dispatch:
 
 permissions:
@@ -17,81 +13,75 @@ permissions:
 jobs:
   test:
     name: Run Tests
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      
+        uses: actions/checkout@v5
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-      
+          cache: pip
+          cache-dependency-path: requirements-termux.txt
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-termux.txt
-      
-      - name: Create directory structure
-        run: |
-          mkdir -p ~/neural-mesh/{src/tests,logs,storage}
-          cp pipeline_enhanced.py ~/neural-mesh/
-          cp requirements-termux.txt ~/neural-mesh/
-      
+
       - name: Run syntax check
+        run: python -m py_compile pipeline_enhanced.py
+
+      - name: Run available tests
+        shell: bash
         run: |
-          python -m py_compile pipeline_enhanced.py
-      
-      - name: Upload test results
+          if find . -path './.git' -prune -o -type f -name 'test_*.py' -print -quit | grep -q .; then
+            python -m pytest -q
+          else
+            echo 'No pytest suite found; syntax validation completed.'
+          fi
+
+      - name: Upload test logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: test-results
-          path: ~/neural-mesh/logs/
+          name: neural-mesh-test-results
+          path: logs/
+          if-no-files-found: ignore
 
   build-docker:
     name: Build Docker Image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: test
-    permissions:
-      contents: read
-    
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      
+        uses: actions/checkout@v5
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      
+        uses: docker/setup-buildx-action@v3
       - name: Build Docker image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           push: false
-          tags: neural-mesh-pipeline:latest
+          tags: neural-mesh-pipeline:ci-${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
   deploy-docs:
     name: Deploy Documentation
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
     needs: test
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     permissions:
       contents: write
-    
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      
+        uses: actions/checkout@v5
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        if: github.event_name == 'push'
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
-          enable_jekyll: true
+          enable_jekyll: false
